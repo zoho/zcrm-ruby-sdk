@@ -309,8 +309,8 @@ module ZCRMSDK
         ZCRMModuleRelation.get_instance(self, junction_record).remove_relation
       end
 
-      def add_note(note_ins)
-        ZCRMModuleRelation.get_instance(self, 'Notes').add_note(note_ins)
+      def add_notes(note_instances)
+        ZCRMModuleRelation.get_instance(self, 'Notes').add_notes(note_instances)
       end
 
       def update_note(note_ins)
@@ -824,8 +824,8 @@ module ZCRMSDK
         Handler::RelatedListAPIHandler.get_instance(@parent_record, @junction_record).remove_relation
       end
 
-      def add_note(zcrm_note_ins)
-        Handler::RelatedListAPIHandler.get_instance(@parent_record, self).add_note(zcrm_note_ins)
+      def add_notes(zcrm_note_instances)
+        Handler::RelatedListAPIHandler.get_instance(@parent_record, self).add_notes(zcrm_note_instances)
       end
 
       def update_note(zcrm_note_ins)
@@ -836,7 +836,7 @@ module ZCRMSDK
         Handler::RelatedListAPIHandler.get_instance(@parent_record, self).delete_note(zcrm_note_ins)
       end
 
-      def get_notes(sort_by = nil, sort_order = nil, page = 1, per_page = 20)
+      def get_notes(sort_by = nil, sort_order = nil, page = 1, per_page = 200)
         Handler::RelatedListAPIHandler.get_instance(@parent_record, self).get_notes(sort_by, sort_order, page, per_page)
       end
 
@@ -860,9 +860,11 @@ module ZCRMSDK
         @attachments = nil
         @size = nil
         @is_voice_note = nil
-        @parent_module = nil
+        unless parent_record.nil?
+          @parent_module = parent_record.module_api_name
+          @parent_id = parent_record.entity_id
+        end
         @parent_name = nil
-        @parent_id = nil
         @is_editable = nil
       end
 
@@ -883,7 +885,7 @@ module ZCRMSDK
       end
 
       def self.get_instance(parent_record = nil, note_id = nil)
-        ZCRMNote.new(parent_record = nil, note_id)
+        ZCRMNote.new(parent_record , note_id)
       end
     end
     # THIS CLASS IS USED TO STORE PROFILE PERMISSIONS RELATED DATA

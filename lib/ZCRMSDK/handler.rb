@@ -1513,7 +1513,7 @@ module ZCRMSDK
       def self.get_instance
         OrganizationAPIHandler.new
       end
-
+      
       def get_organization_details
         handler_ins = APIHandler.get_instance
         handler_ins.request_url_path = 'org'
@@ -1645,49 +1645,51 @@ module ZCRMSDK
         api_response
       end
 
-      def get_all_users
-        get_users
+      def get_all_users(page,per_page)
+        get_users('AllUsers',page,per_page)
       end
 
-      def get_all_deactive_users
-        get_users('DeactiveUsers')
+      def get_all_deactive_users(page,per_page)
+        get_users('DeactiveUsers',page,per_page)
       end
 
-      def get_all_active_users
-        get_users('ActiveUsers')
+      def get_all_active_users(page,per_page)
+        get_users('ActiveUsers',page,per_page)
       end
 
-      def get_all_confirmed_users
-        get_users('ConfirmedUsers')
+      def get_all_confirmed_users(page,per_page)
+        get_users('ConfirmedUsers',page,per_page)
       end
 
-      def get_all_not_confirmed_users
-        get_users('NotConfirmedUsers')
+      def get_all_not_confirmed_users(page,per_page)
+        get_users('NotConfirmedUsers',page,per_page)
       end
 
-      def get_all_deleted_users
-        get_users('DeletedUsers')
+      def get_all_deleted_users(page,per_page)
+        get_users('DeletedUsers',page,per_page)
       end
 
-      def get_all_active_confirmed_users
-        get_users('ActiveConfirmedUsers')
+      def get_all_active_confirmed_users(page,per_page)
+        get_users('ActiveConfirmedUsers',page,per_page)
       end
 
-      def get_all_admin_users
-        get_users('AdminUsers')
+      def get_all_admin_users(page,per_page)
+        get_users('AdminUsers',page,per_page)
       end
 
-      def get_all_active_confirmed_admin_users
-        get_users('ActiveConfirmedAdmins')
+      def get_all_active_confirmed_admin_users(page,per_page)
+        get_users('ActiveConfirmedAdmins',page,per_page)
       end
 
-      def get_current_user
-        get_users('CurrentUser')
+      def get_current_user(page,per_page)
+        get_users('CurrentUser',page,per_page)
       end
 
-      def get_users(user_type = nil)
+      def get_users(user_type = nil,page=1,per_page=200)
         handler_ins = APIHandler.get_instance
         handler_ins.add_param('type', user_type) unless user_type.nil?
+        handler_ins.add_param('page', page) 
+        handler_ins.add_param('per_page', per_page) 
         handler_ins.request_url_path = 'users'
         handler_ins.request_method = Utility::APIConstants::REQUEST_METHOD_GET
         handler_ins.request_api_key = Utility::APIConstants::USERS
@@ -1702,7 +1704,7 @@ module ZCRMSDK
         bulk_api_response
       end
 
-      def search_users_by_criteria(criteria, type)
+      def search_users_by_criteria(criteria, type,page,per_page)
         if criteria.nil? 
           raise Utility::ZCRMException.get_instance('search_users_by_criteria', Utility::APIConstants::RESPONSECODE_BAD_REQUEST, 'criteria must be provided', 'NO CRITERIA PROVIDED')
         end
@@ -1713,6 +1715,8 @@ module ZCRMSDK
         handler_ins.request_api_key = Utility::APIConstants::USERS
         handler_ins.add_param('criteria', criteria)
         handler_ins.add_param('type', type) unless type.nil?
+        handler_ins.add_param('page', page) 
+        handler_ins.add_param('per_page', per_page)
         bulk_api_response = ZCRMSDK::Request::APIRequest.get_instance(handler_ins).get_bulk_api_response
         users_json = bulk_api_response.response_json[Utility::APIConstants::USERS]
         user_instances = []
@@ -1847,6 +1851,77 @@ module ZCRMSDK
         org_api_helper = OrganizationAPIHandlerHelper.get_instance
         api_response.data = org_api_helper.get_zcrm_org_tax_instance(api_response.response_json[Utility::APIConstants::TAXES][0])
         api_response
+      end
+      def get_notes(sort_by, sort_order, page, per_page)
+        handler_ins = APIHandler.get_instance
+        handler_ins.request_url_path = 'Notes'
+        handler_ins.request_method = Utility::APIConstants::REQUEST_METHOD_GET
+        handler_ins.request_api_key = Utility::APIConstants::DATA
+        handler_ins.add_param('page', page)
+        handler_ins.add_param('per_page', per_page)
+        handler_ins.add_param('sort_by', sort_by)unless sort_by.nil?
+        handler_ins.add_param('sort_order', sort_order)unless sort_order.nil?
+        bulk_api_response = Request::APIRequest.get_instance(handler_ins).get_bulk_api_response
+        notes_json = bulk_api_response.response_json.dig(ZCRMSDK::Utility::APIConstants::DATA)
+        notes_list = []
+        notes_helper = RelatedListAPIHandlerHelper.get_instance
+        notes_json.each do |note_json|
+          record_ins=Operations::ZCRMRecord.get_instance(note_json['$se_module'], note_json['Parent_Id']['id'])
+          note_ins = Operations::ZCRMNote.get_instance(record_ins,note_json['id'])
+          notes_list.push(notes_helper.get_zcrm_note(note_json,note_ins))
+        end
+        bulk_api_response.data = notes_list
+        bulk_api_response
+      end
+      def create_notes(note_instances)
+        if note_instances.length > 100
+          raise Utility::ZCRMException.get_instance('create_notes', Utility::APIConstants::RESPONSECODE_BAD_REQUEST, 'note count must be less than or equals to 100', 'MORE NOTES PROVIDED')
+        end
+
+        if note_instances.length < 1
+          raise Utility::ZCRMException.get_instance('create_notes', Utility::APIConstants::RESPONSECODE_BAD_REQUEST, 'note count must be at least 1', 'NO NOTES PROVIDED')
+        end
+
+        handler_ins = APIHandler.get_instance
+        handler_ins.request_url_path = 'Notes'
+        handler_ins.request_method = Utility::APIConstants::REQUEST_METHOD_POST
+        handler_ins.request_api_key = Utility::APIConstants::DATA
+        notes_api_helper = RelatedListAPIHandlerHelper.get_instance
+        data_array = []
+        note_instances.each do |note_instance|
+          if note_instance.id.nil?
+            data_array.push(notes_api_helper.get_zcrmnote_as_json(note_instance))
+          else
+            raise Utility::ZCRMException.get_instance('notes_Create', Utility::APIConstants::RESPONSECODE_BAD_REQUEST, 'note id must be nil', 'NOTE ID PROVIDED')
+          end
+        end
+        request_json = {}
+        request_json[Utility::APIConstants::DATA] = data_array
+        handler_ins.request_body = request_json
+        bulk_api_response = ZCRMSDK::Request::APIRequest.get_instance(handler_ins).get_bulk_api_response
+        bulk_api_response
+      end
+      def delete_notes(note_ids)
+        if note_ids.length > 100
+          raise Utility::ZCRMException.get_instance('delete_notes', Utility::APIConstants::RESPONSECODE_BAD_REQUEST, 'notes count must be less than or equals to 100', 'MORE NOTES PROVIDED')
+        end
+
+        if note_ids.length < 1
+          raise Utility::ZCRMException.get_instance('delete_notes', Utility::APIConstants::RESPONSECODE_BAD_REQUEST, 'notes  count must be at least 1', 'NO NOTES PROVIDED')
+        end
+
+        handler_ins = APIHandler.get_instance
+        handler_ins.request_url_path = 'Notes'
+        handler_ins.request_method = Utility::APIConstants::REQUEST_METHOD_DELETE
+        handler_ins.request_api_key = Utility::APIConstants::DATA
+        ids_as_string = ''
+        note_ids.each do |note_id|
+          ids_as_string += note_id.to_s + ','
+        end
+
+        handler_ins.add_param('ids', ids_as_string)
+        bulk_api_response = Request::APIRequest.get_instance(handler_ins).get_bulk_api_response
+        bulk_api_response
       end
     end
     # THIS CLASS SERVES THE OrganizationAPIHandler CLASS CONSTRUCTING JSON BODY AND INSTANCES
@@ -2700,9 +2775,13 @@ module ZCRMSDK
         api_response
       end
 
-      def add_note(note_ins)
-        if note_ins.nil?
-          raise Utility::ZCRMException.get_instance('add_note', Utility::APIConstants::RESPONSECODE_BAD_REQUEST, 'note instance must be given', 'NOTE INSTANCE NOT PROVIDED')
+      def add_notes(note_instances)
+        if note_instances.length > 100
+          raise Utility::ZCRMException.get_instance('create_notes', Utility::APIConstants::RESPONSECODE_BAD_REQUEST, 'note count must be less than or equals to 100', 'MORE NOTES PROVIDED')
+        end
+
+        if note_instances.length < 1
+          raise Utility::ZCRMException.get_instance('create_notes', Utility::APIConstants::RESPONSECODE_BAD_REQUEST, 'note count must be at least 1', 'NO NOTES PROVIDED')
         end
 
         handler_ins = APIHandler.get_instance
@@ -2710,13 +2789,20 @@ module ZCRMSDK
         handler_ins.request_method = ZCRMSDK::Utility::APIConstants::REQUEST_METHOD_POST
         handler_ins.request_url_path = @parentrecord.module_api_name + '/' + @parentrecord.entity_id + '/' + @related_list.api_name
         handler_ins.request_api_key = Utility::APIConstants::DATA
-        helper_obj = RelatedListAPIHandlerHelper.get_instance
-        input_json = helper_obj.get_zcrmnote_as_json(note_ins)
-        handler_ins.request_body = Utility::CommonUtil.create_api_supported_input_json(input_json, Utility::APIConstants::DATA)
-        api_response = Request::APIRequest.get_instance(handler_ins).get_api_response
-        response_details = api_response.response_json.dig(Utility::APIConstants::DATA, 0, 'details')
-        api_response.data = helper_obj.get_zcrm_note(response_details, note_ins, @parentrecord)
-        api_response
+        notes_api_helper = RelatedListAPIHandlerHelper.get_instance
+        data_array = []
+        note_instances.each do |note_instance|
+          if note_instance.id.nil?
+            data_array.push(notes_api_helper.get_zcrmnote_as_json(note_instance))
+          else
+            raise Utility::ZCRMException.get_instance('notes_Create', Utility::APIConstants::RESPONSECODE_BAD_REQUEST, 'note id must be nil', 'NOTE ID PROVIDED')
+          end
+        end
+        request_json = {}
+        request_json[Utility::APIConstants::DATA] = data_array
+        handler_ins.request_body = request_json
+        bulk_api_response = ZCRMSDK::Request::APIRequest.get_instance(handler_ins).get_bulk_api_response
+        bulk_api_response
       end
 
       def update_note(note_ins)
@@ -2806,6 +2892,8 @@ module ZCRMSDK
         note = {}
         note['Note_Title'] = note_ins.title unless note_ins.title.nil?
         note['Note_Content'] = note_ins.content
+        note['Parent_Id'] = note_ins.parent_id unless note_ins.parent_id.nil?
+        note['se_module'] = note_ins.parent_module unless note_ins.parent_module.nil?
         note
       end
 

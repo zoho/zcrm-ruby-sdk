@@ -1,9 +1,20 @@
-# frozen_string_literal: true
+# require './oauth_utility'
+# require './operations'
+# require './handler'
+# require './oauth_client'
+# require './operations'
+# require './org'
+# require './persistence'
+# require './request'
+# require './response'
+# require './utility'
+# require './restclient'
+# require './version'
 require 'ZCRMSDK'
 # THIS CLASS SHOWS THE EXAMPLES
-class Test
+class Tester
   def initialize
-    config_details = { 'client_id' => 'client_id', 'client_secret' => 'client_secret', 'redirect_uri' => 'redirect_uri', 'api_base_url' => 'api_base_url', 'api_version' => 'v2', 'current_user_email' => 'user_identifier', 'application_log_file_path' => "path/to/filename.log" ,'log_in_console' => 'true' }
+    config_details = { 'client_id' => 'client_id', 'client_secret' => 'client_secret', 'redirect_uri' => 'redirect_uri', 'api_base_url' => 'http://www.zohoapis.com', 'api_version' => 'v2', 'current_user_email' => 'current_user_email' ,'log_in_console' => 'true' }  
     ZCRMSDK::RestClient::ZCRMRestClient.init(config_details)
   end
 
@@ -668,7 +679,9 @@ class Test
 
   def get_all_user
     org = ZCRMSDK::Org::ZCRMOrganization.get_instance
-    api_res = org.get_all_users
+    page=1
+    per_page=4
+    api_res = org.get_all_users(page,per_page)
     users = api_res.data
     users.each do |user_instance|
       print user_instance.id
@@ -815,7 +828,7 @@ class Test
 
   def get_all_active_users
     org = ZCRMSDK::Org::ZCRMOrganization.get_instance
-    api_res = org.get_all_active_users
+    api_res = org.get_all_active_users(1,2)
     users = api_res.data
     users.each do |user_instance|
       print user_instance.id
@@ -3481,8 +3494,8 @@ class Test
   end
 
   def get_record
-    module_api_name = 'module_api_name'
-    entity_id = 'entity_id'
+    module_api_name = 'Accounts'
+    entity_id = '3524033000003350015'
     module_instance = ZCRMSDK::Operations::ZCRMModule.get_instance(module_api_name)
     api_res = module_instance.get_record(entity_id)
     record = api_res.data
@@ -4981,19 +4994,28 @@ class Test
     print res.details
   end
 
-  def add_note
-    module_api_name = 'module_api_name'
-    record_id = 'record_id'
+  def add_notes
+    module_api_name = 'Accounts'
+    record_id = '3524033000003350015'
+    notes=[]
     record = ZCRMSDK::Operations::ZCRMRecord.get_instance(module_api_name, record_id)
     note = ZCRMSDK::Operations::ZCRMNote.get_instance(record, nil)
     note.title = 'Adssadasdasd'
     note.content = 'Adssadasdasd'
-    res = record.add_note(nil)
-    print res.code
-    print "\n"
-    print res.message
-    print "\n"
-    print res.details
+    notes.push(note)
+    note1 = ZCRMSDK::Operations::ZCRMNote.get_instance(record, nil)
+    note1.title = 'Adssadasdasd'
+    note1.content = 'Adssadasdasd'
+    notes.push(note1)
+    res = record.add_notes(notes).bulk_entity_response
+    res.each do |response|
+      print "\n"
+      print response.code
+      print "\n"
+      print response.message
+      print "\n"
+      print response.details
+    end
   end
 
   def update_note
@@ -5012,7 +5034,7 @@ class Test
     print res.details
   end
 
-  def delete_note(module_api_name, record_id, note_id)
+  def delete_note
     module_api_name = 'module_api_name'
     record_id = 'record_id'
     note_id = 'note_id'
@@ -5026,11 +5048,15 @@ class Test
     print res.details
   end
 
-  def get_notes
-    module_api_name = 'module_api_name'
-    record_id = 'record_id'
+  def get_notes_from_record
+    module_api_name = 'accounts'
+    record_id = '3524033000003350015'
     record = ZCRMSDK::Operations::ZCRMRecord.get_instance(module_api_name, record_id)
-    res = record.get_notes(nil, nil, 1, 20)
+    page=1
+    per_page=3
+    sort_by='Note_Content'
+    sort_order='asc'
+    res = record.get_notes(sort_by, sort_order, page, per_page)
     notes = res.data
     notes.each do |zcrmnote_ins|
       print zcrmnote_ins.id
@@ -5274,6 +5300,148 @@ class Test
     note = ZCRMSDK::Operations::ZCRMNote.get_instance(record_ins, note_id) #record_ins - is not mandatory
     note_delete_attachment_res = note.download_attachment(note_attachment_id) 
   end
+  def get_notes
+    org = ZCRMSDK::Org::ZCRMOrganization.get_instance
+    page=1
+    per_page=2
+    sort_by='Note_Content'
+    sort_order='asc'
+    api_res = org.get_notes(sort_by,sort_order,page,per_page)
+    notes = api_res.data
+    notes.each do |zcrmnote_ins|
+      print zcrmnote_ins.id
+      print "\n"
+      print zcrmnote_ins.title
+      print "\n"
+      print zcrmnote_ins.content
+      owner = zcrmnote_ins.owner
+      unless owner.nil?
+        print "\n"
+        print owner.id
+        print "\n"
+        print owner.name
+      end
+      created_by = zcrmnote_ins.created_by
+      unless created_by.nil?
+        print "\n"
+        print created_by.id
+        print "\n"
+        print created_by.name
+      end
+      modified_by = zcrmnote_ins.modified_by
+      unless modified_by.nil?
+        print "\n"
+        print modified_by.id
+        print "\n"
+        print modified_by.name
+      end
+      print "\n"
+      print zcrmnote_ins.created_time
+      print "\n"
+      print zcrmnote_ins.modified_time
+      print "\n"
+      print zcrmnote_ins.is_voice_note
+      print "\n"
+      print zcrmnote_ins.parent_module
+      print "\n"
+      print zcrmnote_ins.parent_id
+      print "\n"
+      print zcrmnote_ins.parent_name
+      print "\n"
+      print zcrmnote_ins.size
+      print "\n"
+      print zcrmnote_ins.is_editable
+      print "\n"
+      attachments = zcrmnote_ins.attachments
+      next if attachments.nil?
+
+      attachments.each do |zcrmattachment_ins|
+        print zcrmattachment_ins.id
+        print "\n"
+        print zcrmattachment_ins.file_name
+        print "\n"
+        print zcrmattachment_ins.type
+        owner = zcrmattachment_ins.owner
+        unless owner.nil?
+          print "\n"
+          print owner.id
+          print "\n"
+          print owner.name
+        end
+        created_by = zcrmattachment_ins.created_by
+        unless created_by.nil?
+          print "\n"
+          print created_by.id
+          print "\n"
+          print created_by.name
+        end
+        modified_by = zcrmattachment_ins.modified_by
+        unless modified_by.nil?
+          print "\n"
+          print modified_by.id
+          print "\n"
+          print modified_by.name
+        end
+        print "\n"
+        print zcrmattachment_ins.created_time
+        print "\n"
+        print zcrmattachment_ins.file_id
+        print "\n"
+        print zcrmattachment_ins.modified_time
+        print "\n"
+        print zcrmattachment_ins.attachment_type
+        print "\n"
+        print zcrmattachment_ins.parent_module
+        print "\n"
+        print zcrmattachment_ins.parent_id
+        print "\n"
+        print zcrmattachment_ins.parent_name
+        print "\n"
+        print zcrmattachment_ins.size
+        print "\n"
+        print zcrmattachment_ins.is_editable
+        print "\n"
+        print zcrmattachment_ins.link_url
+        print "\n"
+      end
+    end
+  end
+  def create_notes
+    org = ZCRMSDK::Org::ZCRMOrganization.get_instance
+    notes=[]
+    module_api_name = 'Accounts'
+    record_id = '3524033000003350015'
+    record = ZCRMSDK::Operations::ZCRMRecord.get_instance(module_api_name, record_id)
+    note = ZCRMSDK::Operations::ZCRMNote.get_instance(record, nil)
+    note.title = 'Adssadasdasd'
+    note.content = 'Adssadasdasd'
+    notes.push(note)
+    note1 = ZCRMSDK::Operations::ZCRMNote.get_instance(record, nil)
+    note1.title = 'Adssadasdasd'
+    note1.content = 'Adssadasdasd'
+    notes.push(note1)
+    res = org.create_notes(notes).bulk_entity_response
+    res.each do |response|
+      print "\n"
+      print response.code
+      print "\n"
+      print response.message
+      print "\n"
+      print response.details
+    end
+  end
+  def delete_notes
+    org = ZCRMSDK::Org::ZCRMOrganization.get_instance
+    note_ids=['3524033000003437005','3524033000003437006']
+    res = org.delete_notes(note_ids).bulk_entity_response
+    res.each do |response|
+      print response.code
+      print "\n"
+      print response.message
+      print "\n"
+      print response.details
+    end
+  end
 end
 
 obj = Tester.new
@@ -5311,7 +5479,9 @@ obj = Tester.new
 # obj.delete_organization_taxes
 # obj.delete_organization_tax
 # obj.search_user_by_criteria
-
+# obj.get_notes
+# obj.create_notes
+# obj.delete_notes 
 # ZCRMCustomView samples
 
 # obj.get_records_from_custom_view
@@ -5363,10 +5533,10 @@ obj = Tester.new
 # obj.delete_photo
 # obj.add_relation
 # obj.remove_relation
-# obj.add_note
+# obj.add_notes
 # obj.update_note
 # obj.delete_note
-# obj.get_notes
+# obj.get_notes_from_record
 # obj.get_attachments
 # obj.get_relatedlist_records
 # obj.add_tags
@@ -5395,6 +5565,6 @@ obj = Tester.new
 
 #client = ZCRMSDK::OAuthClient::ZohoOAuth.get_client_instance
 #refresh_token = 'refresh_token'
-#client.generate_access_token_from_refresh_token(refresh_token)
+#client.generate_access_token_from_refresh_token(refresh_token,useridentifier)
 
 

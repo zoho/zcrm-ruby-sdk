@@ -57,40 +57,40 @@ module ZCRMSDK
         Handler::OrganizationAPIHandler.get_instance.get_current_user
       end
 
-      def get_all_users
-        Handler::OrganizationAPIHandler.get_instance.get_all_users
+      def get_all_users(page=1,per_page=200)
+        Handler::OrganizationAPIHandler.get_instance.get_all_users(page,per_page)
       end
 
-      def get_all_active_users
-        Handler::OrganizationAPIHandler.get_instance.get_all_active_users
+      def get_all_active_users(page=1,per_page=200)
+        Handler::OrganizationAPIHandler.get_instance.get_all_active_users(page,per_page)
       end
 
-      def get_all_deactive_users
-        Handler::OrganizationAPIHandler.get_instance.get_all_deactive_users
+      def get_all_deactive_users(page=1,per_page=200)
+        Handler::OrganizationAPIHandler.get_instance.get_all_deactive_users(page,per_page)
       end
 
-      def get_all_confirmed_users
-        Handler::OrganizationAPIHandler.get_instance.get_all_confirmed_users
+      def get_all_confirmed_users(page=1,per_page=200)
+        Handler::OrganizationAPIHandler.get_instance.get_all_confirmed_users(page,per_page)
       end
 
-      def get_all_not_confirmed_users
-        Handler::OrganizationAPIHandler.get_instance.get_all_not_confirmed_users
+      def get_all_not_confirmed_users(page=1,per_page=200)
+        Handler::OrganizationAPIHandler.get_instance.get_all_not_confirmed_users(page,per_page)
       end
 
-      def get_all_deleted_users
-        Handler::OrganizationAPIHandler.get_instance.get_all_deleted_users
+      def get_all_deleted_users(page=1,per_page=200)
+        Handler::OrganizationAPIHandler.get_instance.get_all_deleted_users(page,per_page)
       end
 
-      def get_all_active_confirmed_users
-        Handler::OrganizationAPIHandler.get_instance.get_all_active_confirmed_users
+      def get_all_active_confirmed_users(page=1,per_page=200)
+        Handler::OrganizationAPIHandler.get_instance.get_all_active_confirmed_users(page,per_page)
       end
 
-      def get_all_admin_users
-        Handler::OrganizationAPIHandler.get_instance.get_all_admin_users
+      def get_all_admin_users(page=1,per_page=200)
+        Handler::OrganizationAPIHandler.get_instance.get_all_admin_users(page,per_page)
       end
 
-      def get_all_active_confirmed_admin_users
-        Handler::OrganizationAPIHandler.get_instance.get_all_active_confirmed_admin_users
+      def get_all_active_confirmed_admin_users(page=1,per_page=200)
+        Handler::OrganizationAPIHandler.get_instance.get_all_active_confirmed_admin_users(page,per_page)
       end
 
       def get_all_profiles
@@ -129,8 +129,8 @@ module ZCRMSDK
         Handler::OrganizationAPIHandler.get_instance.get_organization_tax(org_tax_id)
       end
 
-      def search_users_by_criteria(criteria, type = nil)
-        Handler::OrganizationAPIHandler.get_instance.search_users_by_criteria(criteria, type)
+      def search_users_by_criteria(criteria, type = nil,page=1,per_page=200)
+        Handler::OrganizationAPIHandler.get_instance.search_users_by_criteria(criteria, type,page,per_page)
       end
 
       def create_organization_taxes(orgtax_instances)
@@ -147,6 +147,15 @@ module ZCRMSDK
 
       def delete_organization_tax(orgtax_id)
         Handler::OrganizationAPIHandler.get_instance.delete_organization_tax(orgtax_id)
+      end
+      def get_notes(sort_by=nil,sort_order=nil,page=1,per_page=200)
+        Handler::OrganizationAPIHandler.get_instance.get_notes(sort_by,sort_order,page,per_page)
+      end
+      def create_notes(notes_instances)
+        Handler::OrganizationAPIHandler.get_instance.create_notes(notes_instances)
+      end
+      def delete_notes(notes_ids)
+        Handler::OrganizationAPIHandler.get_instance.delete_notes(notes_ids)
       end
     end
   end
