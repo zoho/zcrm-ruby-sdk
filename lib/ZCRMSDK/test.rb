@@ -5432,9 +5432,171 @@ class Tester
   end
   def delete_notes
     org = ZCRMSDK::Org::ZCRMOrganization.get_instance
-    note_ids=['3524033000003437005','3524033000003437006']
+    note_ids=['3524033000003454001','3524033000003454001']
     res = org.delete_notes(note_ids).bulk_entity_response
     res.each do |response|
+      print response.code
+      print "\n"
+      print response.message
+      print "\n"
+      print response.details
+    end
+  end
+
+  def get_variable
+    variable_id='3524033000003077001'
+    variable = ZCRMSDK::Operations::ZCRMVariable.get_instance(nil,variable_id)
+    group_id = '3524033000000231001'
+    variable_ins = variable.get(group_id).data
+    print variable_ins.id
+    print "\n"
+    print variable_ins.api_name
+    print "\n"
+    print variable_ins.name
+    print "\n"
+    print variable_ins.description
+    print "\n"
+    print variable_ins.value
+    print "\n"
+    print variable_ins.type
+    print "\n"
+    print variable_ins.variable_group.id
+    print "\n"
+    print variable_ins.variable_group.api_name
+  end
+
+  def update_variable
+    variable_id='3524033000003077001'
+    variable_api_name='updated'
+    variable = ZCRMSDK::Operations::ZCRMVariable.get_instance(variable_api_name,variable_id)
+    variable.name="updated"
+    variable.description="updated"
+    variable.value=4
+    response = variable.update
+    print "\n"
+    print response.code
+    print "\n"
+    print response.message
+    print "\n"
+    print response.details
+  end
+
+  def delete_variable
+    variable_id='3524033000003077001'
+    variable = ZCRMSDK::Operations::ZCRMVariable.get_instance(nil,variable_id)
+    response = variable.delete
+    print "\n"
+    print response.code
+    print "\n"
+    print response.message
+    print "\n"
+    print response.details
+  end
+
+  def get_variable_group
+    variable_group_id='3524033000000231001'
+    variable_group = ZCRMSDK::Operations::ZCRMVariableGroup.get_instance(nil,variable_group_id)
+    variable_group_ins = variable_group.get.data
+    print variable_group_ins.id
+    print "\n"
+    print variable_group_ins.api_name
+    print "\n"
+    print variable_group_ins.name
+    print "\n"
+    print variable_group_ins.description
+    print "\n"
+    print variable_group_ins.display_label
+  end
+
+  def get_variable_groups
+    org = ZCRMSDK::Org::ZCRMOrganization.get_instance
+    api_res = org.get_variable_groups
+    variable_groups = api_res.data
+    variable_groups.each do |variable_group_ins|
+      print variable_group_ins.id
+      print "\n"
+      print variable_group_ins.api_name
+      print "\n"
+      print variable_group_ins.name
+      print "\n"
+      print variable_group_ins.description
+      print "\n"
+      print variable_group_ins.display_label
+    end
+  end
+
+  def get_variables
+    org = ZCRMSDK::Org::ZCRMOrganization.get_instance
+    api_res = org.get_variables
+    variables = api_res.data
+    variables.each do |variable_ins|
+      print "\n"
+      print variable_ins.id
+      print "\n"
+      print variable_ins.api_name
+      print "\n"
+      print variable_ins.name
+      print "\n"
+      print variable_ins.description
+      print "\n"
+      print variable_ins.value
+      print "\n"
+      print variable_ins.type
+      print "\n"
+      print variable_ins.variable_group.id
+      print "\n"
+      print variable_ins.variable_group.api_name
+    end
+  end
+
+  def create_variables
+    org = ZCRMSDK::Org::ZCRMOrganization.get_instance
+    variables=[]
+    variable_ins1=ZCRMSDK::Operations::ZCRMVariable.get_instance("variable_api_name1",nil)
+    variable_ins1.name="variable_api_name1"
+    variable_ins1.description="variable_api_name1"
+    variable_ins1.type="integer"
+    variable_ins1.variable_group=ZCRMSDK::Operations::ZCRMVariableGroup.get_instance("General","3524033000000231001")
+    variable_ins1.value=23
+    variables.push(variable_ins1)
+    variable_ins2=ZCRMSDK::Operations::ZCRMVariable.get_instance("variable_api_name2",nil)
+    variable_ins2.name="variable_api_name2"
+    variable_ins2.description="variable_api_name2"
+    variable_ins2.type="integer"
+    variable_ins2.variable_group=ZCRMSDK::Operations::ZCRMVariableGroup.get_instance("General","3524033000000231001")
+    variable_ins2.value=32
+    variables.push(variable_ins2)
+    res = org.create_variables(variables).bulk_entity_response
+    res.each do |response|
+      print "\n"
+      print response.code
+      print "\n"
+      print response.message
+      print "\n"
+      print response.details
+    end
+  end
+  
+  def update_variables
+    org = ZCRMSDK::Org::ZCRMOrganization.get_instance
+    variables=[]
+    variable_ins1=ZCRMSDK::Operations::ZCRMVariable.get_instance("variable_api_name1","3524033000003461001")
+    variable_ins1.name="variableasd_api_name1"
+    variable_ins1.description="variabasde_api_name1"
+    variable_ins1.type="integer"
+    variable_ins1.variable_group=ZCRMSDK::Operations::ZCRMVariableGroup.get_instance("General","3524033000000231001")
+    variable_ins1.value=23
+    variables.push(variable_ins1)
+    variable_ins2=ZCRMSDK::Operations::ZCRMVariable.get_instance("variable_api_name2","3524033000003461002")
+    variable_ins2.name="variable_apiasd_name2"
+    variable_ins2.description="variableasd_api_name2"
+    variable_ins2.type="integer"
+    variable_ins2.variable_group=ZCRMSDK::Operations::ZCRMVariableGroup.get_instance("General","3524033000000231001")
+    variable_ins2.value=32
+    variables.push(variable_ins2)
+    res = org.update_variables(variables).bulk_entity_response
+    res.each do |response|
+      print "\n"
       print response.code
       print "\n"
       print response.message
@@ -5482,6 +5644,11 @@ obj = Tester.new
 # obj.get_notes
 # obj.create_notes
 # obj.delete_notes 
+# obj.get_variable_groups
+# obj.get_variables
+# obj.create_variables
+# obj.update_variables
+
 # ZCRMCustomView samples
 
 # obj.get_records_from_custom_view
@@ -5554,6 +5721,16 @@ obj = Tester.new
 # obj.download_attachment_from_note
 # obj.get_attachments_from_note
 # obj.delete_attachment_of_note
+
+#ZCRMVariable samples
+
+# obj.get_variable
+# obj.delete_variable
+# obj.update_variable
+
+#ZCRMVariableGroup samples
+
+# obj.get_variable_group
 
 #OAuth token generation from grant token 
 

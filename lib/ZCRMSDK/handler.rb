@@ -3028,5 +3028,261 @@ module ZCRMSDK
         attachment_ins
       end
     end
+
+    class VariableAPIHandler < APIHandler
+      def initialize(variable_ins = nil)
+        @zcrmvariable = variable_ins
+      end
+
+      def self.get_instance(variable_ins = nil)
+        VariableAPIHandler.new(variable_ins)
+      end
+
+      def create_variables(variables)
+        if variables.length > 100
+          raise Utility::ZCRMException.get_instance('create_variables', Utility::APIConstants::RESPONSECODE_BAD_REQUEST, 'variable count must be less than or equals to 100', 'MORE VARIABLES PROVIDED')
+        end
+
+        if variables.length < 1
+          raise Utility::ZCRMException.get_instance('create_variables', Utility::APIConstants::RESPONSECODE_BAD_REQUEST, 'variable count must at least be 1', 'NO VARIABLES PROVIDED')
+        end
+
+        handler_ins = APIHandler.get_instance
+        handler_ins.request_url_path = 'settings/variables'
+        handler_ins.request_method = ZCRMSDK::Utility::APIConstants::REQUEST_METHOD_POST
+        handler_ins.request_api_key = ZCRMSDK::Utility::APIConstants::VARIABLE
+        variable_array = []
+        variable_helper = VariableAPIHandlerHelper.get_instance
+        variables.each do |variable|
+          if variable.id.nil?
+            variable_array.push(variable_helper.get_zcrmvariable_as_json(variable))
+          else
+            raise Utility::ZCRMException.get_instance('create_variables', Utility::APIConstants::RESPONSECODE_BAD_REQUEST, 'variable id must be nil', 'VARIABLE ID PROVIDED')
+          end
+        end
+        request_json = {}
+        request_json[Utility::APIConstants::VARIABLE] = variable_array
+        handler_ins.request_body = request_json
+        bulk_api_response = Request::APIRequest.get_instance(handler_ins).get_bulk_api_response
+        bulk_api_response
+      end
+
+      def update_variables(variables)
+        if variables.length > 100
+          raise Utility::ZCRMException.get_instance('update_variables', Utility::APIConstants::RESPONSECODE_BAD_REQUEST, 'variable count must be less than or equals to 100', 'MORE VARIABLES PROVIDED')
+        end
+
+        if variables.length < 1
+          raise Utility::ZCRMException.get_instance('update_variables', Utility::APIConstants::RESPONSECODE_BAD_REQUEST, 'variable count must at least be 1', 'NO VARIABLES PROVIDED')
+        end
+
+        handler_ins = APIHandler.get_instance
+        handler_ins.request_url_path = 'settings/variables'
+        handler_ins.request_method = ZCRMSDK::Utility::APIConstants::REQUEST_METHOD_PUT
+        handler_ins.request_api_key = ZCRMSDK::Utility::APIConstants::VARIABLE
+        variable_array = []
+        variable_helper = VariableAPIHandlerHelper.get_instance
+        variables.each do |variable|
+          unless variable.id.nil?
+            variable_array.push(variable_helper.get_zcrmvariable_as_json(variable))
+          else
+            raise Utility::ZCRMException.get_instance('update_variables', Utility::APIConstants::RESPONSECODE_BAD_REQUEST, 'variable id must not be nil', 'VARIABLE ID NOT PROVIDED')
+          end
+        end
+        request_json = {}
+        request_json[Utility::APIConstants::VARIABLE] = variable_array
+        handler_ins.request_body = request_json
+        bulk_api_response = Request::APIRequest.get_instance(handler_ins).get_bulk_api_response
+        bulk_api_response
+      end
+
+      def get_variable(group_id)
+        if @zcrmvariable.id.nil?
+          raise Utility::ZCRMException.get_instance('get_variable', Utility::APIConstants::RESPONSECODE_BAD_REQUEST, 'id should be set for the variable', 'ID IS NOT PROVIDED')
+        end
+
+        if group_id.nil?
+          raise Utility::ZCRMException.get_instance('get_variable', Utility::APIConstants::RESPONSECODE_BAD_REQUEST, 'group should be set for the variable', 'ID IS NOT PROVIDED')
+        end
+
+        handler_ins = APIHandler.get_instance
+        handler_ins.request_url_path = ''
+        handler_ins.request_url_path = 'settings/variables/' + @zcrmvariable.id.to_s
+        handler_ins.request_method = ZCRMSDK::Utility::APIConstants::REQUEST_METHOD_GET
+        handler_ins.request_api_key = Utility::APIConstants::VARIABLE
+        handler_ins.add_param('group',group_id)
+        api_response = Request::APIRequest.get_instance(handler_ins).get_api_response
+        obj = VariableAPIHandlerHelper.get_instance
+        obj.get_zcrmvariable(@zcrmvariable, api_response.response_json.dig(Utility::APIConstants::VARIABLE, 0))
+        api_response.data = @zcrmvariable
+        api_response
+      end
+
+      def update_variable
+        if @zcrmvariable.id.nil?
+          raise Utility::ZCRMException.get_instance('get_variable', Utility::APIConstants::RESPONSECODE_BAD_REQUEST, 'id should be set for the variable', 'ID IS NOT PROVIDED')
+        end
+
+        handler_ins = APIHandler.get_instance
+        handler_ins.request_url_path = ''
+        handler_ins.request_url_path = 'settings/variables/' + @zcrmvariable.id.to_s
+        handler_ins.request_method = ZCRMSDK::Utility::APIConstants::REQUEST_METHOD_PUT
+        handler_ins.request_api_key = Utility::APIConstants::VARIABLE
+        helper_obj = VariableAPIHandlerHelper.get_instance
+        input_json = helper_obj.get_zcrmvariable_as_json(@zcrmvariable)
+        handler_ins.request_body = Utility::CommonUtil.create_api_supported_input_json(input_json, Utility::APIConstants::VARIABLE)
+        api_response = Request::APIRequest.get_instance(handler_ins).get_api_response
+        response_details = api_response.response_json.dig(Utility::APIConstants::VARIABLE, 0, 'details')
+        @zcrmvariable.id = response_details['id']
+        api_response.data = @zcrmvariable
+        api_response
+      end
+
+      def delete_variable
+        if @zcrmvariable.id.nil?
+          raise Utility::ZCRMException.get_instance('delete_variable', Utility::APIConstants::RESPONSECODE_BAD_REQUEST, 'id should be set for the variable', 'ID IS NOT PROVIDED')
+        end
+
+        handler_ins = APIHandler.get_instance
+        handler_ins.request_url_path = ''
+        handler_ins.request_url_path = 'settings/variables/' + @zcrmvariable.id.to_s
+        handler_ins.request_method = ZCRMSDK::Utility::APIConstants::REQUEST_METHOD_DELETE
+        handler_ins.request_api_key = Utility::APIConstants::VARIABLE
+        api_response = Request::APIRequest.get_instance(handler_ins).get_api_response
+        api_response
+      end
+
+      def get_variables
+        handler_ins = APIHandler.get_instance
+        handler_ins.request_url_path = 'settings/variables'
+        handler_ins.request_method = ZCRMSDK::Utility::APIConstants::REQUEST_METHOD_GET
+        handler_ins.request_api_key = ZCRMSDK::Utility::APIConstants::VARIABLE
+        bulk_api_response = ZCRMSDK::Request::APIRequest.get_instance(handler_ins).get_bulk_api_response
+        variables_json = bulk_api_response.response_json.dig(ZCRMSDK::Utility::APIConstants::VARIABLE)
+        variable_list = []
+        variable_helper = VariableAPIHandlerHelper.get_instance
+        variables_json.each do |variable_json|
+          variable_ins = Operations::ZCRMVariable.get_instance(variable_json['api_name'], variable_json['id'])
+          variable_list.push(variable_helper.get_zcrmvariable(variable_ins, variable_json))
+        end
+        bulk_api_response.data = variable_list
+        bulk_api_response
+      end
+    end
+
+    class VariableAPIHandlerHelper
+      def initialize; end
+
+      def self.get_instance
+        VariableAPIHandlerHelper.new
+      end
+
+      def get_zcrmvariable(zcrm_variable_ins, variable_details)
+        variable_details.each do |key, value|
+          zcrm_variable_ins.id = value if (key == 'id') && !value.nil?
+          if (key == 'variable_group') && !value.nil?
+            zcrm_variable_ins.variable_group = Operations::ZCRMVariableGroup.get_instance(variable_details['variable_group']['api_name'], variable_details['variable_group']['id'])
+          elsif (key == 'api_name') && !value.nil?
+            zcrm_variable_ins.api_name = variable_details['api_name']
+          elsif (key == 'name') && !value.nil?
+            zcrm_variable_ins.name = variable_details['name']
+          elsif (key == 'id') && !value.nil?
+            zcrm_variable_ins.id = variable_details['id']
+          elsif (key == 'type') && !value.nil?
+            zcrm_variable_ins.type = variable_details['type']
+          elsif (key == 'value') && !value.nil?
+            zcrm_variable_ins.value = variable_details['value']
+          elsif (key == 'description') && !value.nil?
+            zcrm_variable_ins.description = variable_details['description']
+          end
+        end
+        zcrm_variable_ins
+      end
+
+      def get_zcrmvariable_as_json(zcrm_variable_ins)
+        variable_json = {}
+        variable_json['id'] = zcrm_variable_ins.id unless zcrm_variable_ins.id.nil?
+        variable_json['name'] = zcrm_variable_ins.name unless zcrm_variable_ins.name.nil?
+        variable_json['api_name'] = zcrm_variable_ins.api_name unless zcrm_variable_ins.api_name.nil?
+        variable_json['type'] = zcrm_variable_ins.type unless zcrm_variable_ins.type.nil?
+        variable_json['value'] = zcrm_variable_ins.value unless zcrm_variable_ins.value.nil?
+        variable_json['description'] = zcrm_variable_ins.description unless zcrm_variable_ins.description.nil?
+        variable_group_json = {}
+        variable_group_json['id'] = zcrm_variable_ins.variable_group.id unless zcrm_variable_ins.variable_group.nil? || zcrm_variable_ins.variable_group.id.nil?
+        variable_group_json['api_name'] = zcrm_variable_ins.variable_group.id unless zcrm_variable_ins.variable_group.nil? || zcrm_variable_ins.variable_group.id.nil?
+        variable_json['variable_group']= variable_group_json
+        variable_json
+      end
+    end
+
+    class VariableGroupAPIHandler < APIHandler
+      def initialize(variable_group_ins = nil)
+        @zcrmvariablegroup = variable_group_ins
+      end
+
+      def self.get_instance(variable_group_ins = nil)
+        VariableGroupAPIHandler.new(variable_group_ins)
+      end
+
+      def get_variable_group
+        if @zcrmvariablegroup.id.nil?
+          raise Utility::ZCRMException.get_instance('get_variable', Utility::APIConstants::RESPONSECODE_BAD_REQUEST, 'id should be set for the variable', 'ID IS NOT PROVIDED')
+        end
+
+        handler_ins = APIHandler.get_instance
+        handler_ins.request_url_path = ''
+        handler_ins.request_url_path = 'settings/variable_groups/' + @zcrmvariablegroup.id.to_s
+        handler_ins.request_method = ZCRMSDK::Utility::APIConstants::REQUEST_METHOD_GET
+        handler_ins.request_api_key = Utility::APIConstants::VARIABLE_GROUP
+        api_response = Request::APIRequest.get_instance(handler_ins).get_api_response
+        obj = VariableGroupAPIHandlerHelper.get_instance
+        obj.get_zcrmvariablegroup(@zcrmvariablegroup, api_response.response_json.dig(Utility::APIConstants::VARIABLE_GROUP, 0))
+        api_response.data = @zcrmvariablegroup
+        api_response
+      end
+
+      def get_variable_groups
+        handler_ins = APIHandler.get_instance
+        handler_ins.request_url_path = 'settings/variable_groups'
+        handler_ins.request_method = ZCRMSDK::Utility::APIConstants::REQUEST_METHOD_GET
+        handler_ins.request_api_key = ZCRMSDK::Utility::APIConstants::VARIABLE_GROUP
+        bulk_api_response = ZCRMSDK::Request::APIRequest.get_instance(handler_ins).get_bulk_api_response
+        variable_groups_json = bulk_api_response.response_json.dig(ZCRMSDK::Utility::APIConstants::VARIABLE_GROUP)
+        variable_group_list = []
+        variable_group_helper = VariableGroupAPIHandlerHelper.get_instance
+        variable_groups_json.each do |variable_group_json|
+          variable_group_ins = Operations::ZCRMVariableGroup.get_instance(variable_group_json['api_name'], variable_group_json['id'])
+          variable_group_list.push(variable_group_helper.get_zcrmvariablegroup(variable_group_ins, variable_group_json))
+        end
+        bulk_api_response.data = variable_group_list
+        bulk_api_response
+      end
+    end
+
+    class VariableGroupAPIHandlerHelper
+      def initialize; end
+
+      def self.get_instance
+        VariableGroupAPIHandlerHelper.new
+      end
+
+      def get_zcrmvariablegroup(zcrm_variablegroup_ins, variable_group_details)
+        variable_group_details.each do |key, value|
+          zcrm_variablegroup_ins.id = value if (key == 'id') && !value.nil?
+          if (key == 'api_name') && !value.nil?
+            zcrm_variablegroup_ins.api_name = variable_group_details['api_name']
+          elsif (key == 'name') && !value.nil?
+            zcrm_variablegroup_ins.name = variable_group_details['name']
+          elsif (key == 'id') && !value.nil?
+            zcrm_variablegroup_ins.id = variable_group_details['id']
+          elsif (key == 'display_label') && !value.nil?
+            zcrm_variablegroup_ins.display_label = variable_group_details['display_label']
+          elsif (key == 'description') && !value.nil?
+            zcrm_variablegroup_ins.description = variable_group_details['description']
+          end
+        end
+        zcrm_variablegroup_ins
+      end
+    end
   end
 end

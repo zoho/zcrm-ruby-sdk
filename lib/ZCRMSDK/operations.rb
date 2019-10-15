@@ -1041,5 +1041,51 @@ module ZCRMSDK
         ZCRMTrashRecord.new(module_api_name, entity_type, entity_id)
       end
     end
+    class ZCRMVariable
+      attr_accessor :id, :name, :api_name, :type, :value, :variable_group, :description
+      def initialize(api_name =nil ,id = nil)
+        @id = id
+        @name = nil
+        @api_name = api_name
+        @type = nil
+        @value = nil
+        @variable_group = nil
+        @description = nil
+      end
+
+      def self.get_instance(api_name=nil,id = nil)
+        ZCRMVariable.new(api_name,id)
+      end
+
+      def get(group_id)
+        Handler::VariableAPIHandler.get_instance(self).get_variable(group_id)
+      end
+
+      def update
+        Handler::VariableAPIHandler.get_instance(self).update_variable
+      end
+
+      def delete
+        Handler::VariableAPIHandler.get_instance(self).delete_variable
+      end
+    end
+    class ZCRMVariableGroup
+      attr_accessor :id, :name, :api_name,:display_label, :description
+      def initialize(api_name=nil,id = nil)
+        @id = id
+        @name = nil
+        @api_name = api_name
+        @display_label = nil
+        @description = nil
+      end
+
+      def self.get_instance(api_name=nil,id = nil)
+        ZCRMVariableGroup.new(api_name,id)
+      end
+      
+      def get
+        Handler::VariableGroupAPIHandler.get_instance(self).get_variable_group
+      end
+    end
   end
 end

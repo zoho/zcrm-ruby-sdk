@@ -157,6 +157,18 @@ module ZCRMSDK
       def delete_notes(notes_ids)
         Handler::OrganizationAPIHandler.get_instance.delete_notes(notes_ids)
       end
+      def get_variable_groups
+        Handler::VariableGroupAPIHandler.get_instance.get_variable_groups
+      end
+      def get_variables
+        Handler::VariableAPIHandler.get_instance.get_variables
+      end
+      def create_variables(variable_instances)
+        Handler::VariableAPIHandler.get_instance.create_variables(variable_instances)
+      end
+      def update_variables(variable_instances)
+        Handler::VariableAPIHandler.get_instance.update_variables(variable_instances)
+      end
     end
   end
 end

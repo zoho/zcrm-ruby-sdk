@@ -145,6 +145,8 @@ module ZCRMSDK
       STATUS = 'status'
       DETAILS = 'details'
       DATA = 'data'
+      VARIABLE = 'variables'
+      VARIABLE_GROUP = 'variable_groups'
       INFO = 'info'
       FIELDS = 'fields'
       LAYOUTS = 'layouts'
