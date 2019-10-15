@@ -14,6 +14,7 @@ require 'ZCRMSDK'
 # THIS CLASS SHOWS THE EXAMPLES
 class Tester
   def initialize
+  
     config_details = { 'client_id' => 'client_id', 'client_secret' => 'client_secret', 'redirect_uri' => 'redirect_uri', 'api_base_url' => 'http://www.zohoapis.com', 'api_version' => 'v2', 'current_user_email' => 'current_user_email' ,'log_in_console' => 'true' }  
     ZCRMSDK::RestClient::ZCRMRestClient.init(config_details)
   end
@@ -5444,7 +5445,7 @@ class Tester
   end
 
   def get_variable
-    variable_id='3524033000003077001'
+    variable_id='3524033000003052001'
     variable = ZCRMSDK::Operations::ZCRMVariable.get_instance(nil,variable_id)
     group_id = '3524033000000231001'
     variable_ins = variable.get(group_id).data
@@ -5466,7 +5467,7 @@ class Tester
   end
 
   def update_variable
-    variable_id='3524033000003077001'
+    variable_id='3524033000003209002'
     variable_api_name='updated'
     variable = ZCRMSDK::Operations::ZCRMVariable.get_instance(variable_api_name,variable_id)
     variable.name="updated"
@@ -5482,7 +5483,7 @@ class Tester
   end
 
   def delete_variable
-    variable_id='3524033000003077001'
+    variable_id='3524033000003076001'
     variable = ZCRMSDK::Operations::ZCRMVariable.get_instance(nil,variable_id)
     response = variable.delete
     print "\n"

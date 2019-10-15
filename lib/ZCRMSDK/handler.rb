@@ -3120,7 +3120,7 @@ module ZCRMSDK
 
       def update_variable
         if @zcrmvariable.id.nil?
-          raise Utility::ZCRMException.get_instance('get_variable', Utility::APIConstants::RESPONSECODE_BAD_REQUEST, 'id should be set for the variable', 'ID IS NOT PROVIDED')
+          raise Utility::ZCRMException.get_instance('update_variable', Utility::APIConstants::RESPONSECODE_BAD_REQUEST, 'id should be set for the variable', 'ID IS NOT PROVIDED')
         end
 
         handler_ins = APIHandler.get_instance
@@ -3207,10 +3207,12 @@ module ZCRMSDK
         variable_json['type'] = zcrm_variable_ins.type unless zcrm_variable_ins.type.nil?
         variable_json['value'] = zcrm_variable_ins.value unless zcrm_variable_ins.value.nil?
         variable_json['description'] = zcrm_variable_ins.description unless zcrm_variable_ins.description.nil?
-        variable_group_json = {}
-        variable_group_json['id'] = zcrm_variable_ins.variable_group.id unless zcrm_variable_ins.variable_group.nil? || zcrm_variable_ins.variable_group.id.nil?
-        variable_group_json['api_name'] = zcrm_variable_ins.variable_group.id unless zcrm_variable_ins.variable_group.nil? || zcrm_variable_ins.variable_group.id.nil?
-        variable_json['variable_group']= variable_group_json
+        unless zcrm_variable_ins.variable_group.nil?
+          variable_group_json = {}
+          variable_group_json['id'] = zcrm_variable_ins.variable_group.id unless zcrm_variable_ins.variable_group.nil? || zcrm_variable_ins.variable_group.id.nil?
+          variable_group_json['api_name'] = zcrm_variable_ins.variable_group.id unless zcrm_variable_ins.variable_group.nil? || zcrm_variable_ins.variable_group.id.nil?
+          variable_json['variable_group']= variable_group_json
+        end
         variable_json
       end
     end
