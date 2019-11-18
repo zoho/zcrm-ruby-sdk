@@ -193,6 +193,9 @@ module ZCRMSDK
 
       def get_tokens_from_json(response_json)
         expires_in = response_json[OAuthUtility::ZohoOAuthConstants::EXPIRES_IN]
+        unless response_json.has_key?(OAuthUtility::ZohoOAuthConstants::EXPIRES_IN_SEC)
+          expires_in = expires_in * 1000
+        end
         expires_in += ZCRMSDK::OAuthClient::ZohoOAuthTokens.get_current_time_in_millis
         access_token = response_json[OAuthUtility::ZohoOAuthConstants::ACCESS_TOKEN]
         refresh_token = nil

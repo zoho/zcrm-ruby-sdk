@@ -34,6 +34,7 @@ module ZCRMSDK
       REFRESH_TOKEN = 'refresh_token'
       EXPIRES_IN = 'expires_in'
       EXPIRIY_TIME = 'expiry_time'
+      EXPIRES_IN_SEC = 'expires_in_sec'
       PERSISTENCE_HANDLER_CLASS_PATH = 'persistence_handler_class_path'
       PERSISTENCE_HANDLER_CLASS = 'persistence_handler_class'
       TOKEN = 'token'
