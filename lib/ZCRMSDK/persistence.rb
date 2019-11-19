@@ -72,8 +72,9 @@ module ZCRMSDK
         file_obj.close
         arr = Marshal.load(serialized) unless serialized.nil? || serialized.empty?
         arr.push(oauth_tokens)
-        file_obj = File.open(path, 'w+')
-        file_obj.write(Marshal.dump(arr))
+        tokens = Marshal.dump(arr)
+        file_obj = File.open(path, "w:#{tokens.encoding.to_s}")
+        file_obj.write(tokens)
         file_obj.close
       end
 
@@ -117,8 +118,9 @@ module ZCRMSDK
         end
         if found
           deserialized.delete_at(i)
-          file_obj = File.open(path, 'w+')
-          file_obj.write(Marshal.dump(deserialized))
+          tokens = Marshal.dump(deserialized)
+          file_obj = File.open(path, "w:#{tokens.encoding.to_s}")
+          file_obj.write(tokens)
           file_obj.close
         end
       end
