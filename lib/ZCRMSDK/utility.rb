@@ -304,6 +304,13 @@ module ZCRMSDK
       def self.get_instance(url, status_code, err_message, exception_code = 'error', details = nil, content = nil)
         ZCRMException.new(url, status_code, err_message, exception_code, details, content)
       end
+
+      def to_s
+        "#{self.class}\n#{exception.url}\n#{exception.status_code}"\
+        "- #{exception.error_message}\n"\
+        "#{exception.exception_code}\n#{error_details}\n#{error_content}"
+      end
+
     end
   end
 end
