@@ -965,17 +965,17 @@ module ZCRMSDK
 
           if key == 'id'
             zcrmrecord.entity_id = value
-          elsif key == 'Product_Details'
+          elsif key == 'Product_Details' && Utility::APIConstants::INVENTORY_MODULES.include?(@zcrmrecord.module_api_name) 
             line_items = value
             line_items.each do |line_item|
               zcrmrecord.line_items.push(entity_api_handler_helper.get_zcrminventory_line_item(line_item))
             end
-          elsif key == 'Participants'
+          elsif key == 'Participants' && @zcrmrecord.module_api_name == "Events"
             participants = value
             participants.each do |participant|
               zcrmrecord.participants.push(entity_api_handler_helper.get_zcrmparticipant(participant))
             end
-          elsif key == 'Pricing_Details'
+          elsif key == 'Pricing_Details' && @zcrmrecord.module_api_name == "Price_Books"
             price_details = value
             price_details.each do |price_detail|
               zcrmrecord.price_details.push(entity_api_handler_helper.get_zcrm_pricebook_pricing(price_detail))
@@ -1681,7 +1681,7 @@ module ZCRMSDK
         get_users('ActiveConfirmedAdmins',page,per_page)
       end
 
-      def get_current_user(page,per_page)
+      def get_current_user(page = nil, per_page = nil)
         get_users('CurrentUser',page,per_page)
       end
 
