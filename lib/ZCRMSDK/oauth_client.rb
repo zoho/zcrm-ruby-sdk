@@ -215,11 +215,15 @@ module ZCRMSDK
       end
 
       def get_user_email_from_iam(access_token)
-        header = {}
-        header[OAuthUtility::ZohoOAuthConstants::AUTHORIZATION] = OAuthUtility::ZohoOAuthConstants::OAUTH_HEADER_PREFIX + access_token
-        connector = OAuthUtility::ZohoOAuthHTTPConnector.get_instance(ZohoOAuth.get_user_info_url, nil, header, nil, OAuthUtility::ZohoOAuthConstants::REQUEST_METHOD_GET)
-        response = connector.trigger_request
-        JSON.parse(response.body)[OAuthUtility::ZohoOAuthConstants::EMAIL]
+        begin
+          header = {}
+          header[OAuthUtility::ZohoOAuthConstants::AUTHORIZATION] = OAuthUtility::ZohoOAuthConstants::OAUTH_HEADER_PREFIX + access_token
+          connector = OAuthUtility::ZohoOAuthHTTPConnector.get_instance(ZohoOAuth.get_user_info_url, nil, header, nil, OAuthUtility::ZohoOAuthConstants::REQUEST_METHOD_GET)
+          response = connector.trigger_request
+          JSON.parse(response.body)[OAuthUtility::ZohoOAuthConstants::EMAIL]
+        rescue StandardError => e
+          raise OAuthUtility::ZohoOAuthException.get_instance('generate_access_token(grant_token)', 'Exception occured while fetching User Id from access Token,Make sure AAAserver.profile.Read scope is included while generating the Grant token', 'Exception occured while fetching User Id from access Token', OAuthUtility::ZohoOAuthConstants::ERROR)
+        end
       end
     end
     # THIS CLASS IS USED TO STORE THE TOKEN AS A INSTANCE AND CHECK THE VALIDITY OF THE TOKEN
