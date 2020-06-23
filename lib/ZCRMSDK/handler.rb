@@ -880,9 +880,18 @@ module ZCRMSDK
       end
 
       def get_zcrmparticipant(participant_details)
-        participant = Operations::ZCRMEventParticipant.get_instance(participant_details['type'], participant_details['participant'])
+        type = participant_details['type']
+        id = nil
+        email = nil
+        if participant_details.key?('Email')
+          id = participant_details['participant']
+          email = participant_details['Email']
+        else
+          email =  participant_details['participant']
+        end
+        participant = Operations::ZCRMEventParticipant.get_instance(participant_details['type'], id)
         participant.name = participant_details['name']
-        participant.email = participant_details['Email']
+        participant.email = email
         participant.is_invited = participant_details['invited'] == true
         participant.status = participant_details['status']
         participant
@@ -965,17 +974,17 @@ module ZCRMSDK
 
           if key == 'id'
             zcrmrecord.entity_id = value
-          elsif key == 'Product_Details' && Utility::APIConstants::INVENTORY_MODULES.include?(@zcrmrecord.module_api_name) 
+          elsif key == 'Product_Details' && Utility::APIConstants::INVENTORY_MODULES.include?(zcrmrecord.module_api_name) 
             line_items = value
             line_items.each do |line_item|
               zcrmrecord.line_items.push(entity_api_handler_helper.get_zcrminventory_line_item(line_item))
             end
-          elsif key == 'Participants' && @zcrmrecord.module_api_name == "Events"
+          elsif key == 'Participants' && zcrmrecord.module_api_name == "Events"
             participants = value
             participants.each do |participant|
               zcrmrecord.participants.push(entity_api_handler_helper.get_zcrmparticipant(participant))
             end
-          elsif key == 'Pricing_Details' && @zcrmrecord.module_api_name == "Price_Books"
+          elsif key == 'Pricing_Details' && zcrmrecord.module_api_name == "Price_Books"
             price_details = value
             price_details.each do |price_detail|
               zcrmrecord.price_details.push(entity_api_handler_helper.get_zcrm_pricebook_pricing(price_detail))
