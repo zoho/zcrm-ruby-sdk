@@ -319,6 +319,7 @@ module ZCRMSDK
           end
           data_array.push(input_json)
         end
+        request_json = {}
         request_json['lar_id'] = lar_id unless lar_id.nil?
         unless duplicate_check_fields.nil?
           ids_as_string = ''
@@ -328,7 +329,6 @@ module ZCRMSDK
           handler_ins.add_param('duplicate_check_fields', ids_as_string)
         end
 
-        request_json = {}
         request_json[Utility::APIConstants::DATA] = data_array
         handler_ins.request_body = request_json
         bulk_api_response = Request::APIRequest.get_instance(handler_ins).get_bulk_api_response
@@ -732,7 +732,7 @@ module ZCRMSDK
       def self.get_instance
         EntityAPIHandlerHelper.new
       end
-            
+
       def get_zcrmrecord_as_json(zcrmrecord)
         record_json = {}
         apiname_vs_values = zcrmrecord.field_data
@@ -974,7 +974,7 @@ module ZCRMSDK
 
           if key == 'id'
             zcrmrecord.entity_id = value
-          elsif key == 'Product_Details' && Utility::APIConstants::INVENTORY_MODULES.include?(zcrmrecord.module_api_name) 
+          elsif key == 'Product_Details' && Utility::APIConstants::INVENTORY_MODULES.include?(zcrmrecord.module_api_name)
             line_items = value
             line_items.each do |line_item|
               zcrmrecord.line_items.push(entity_api_handler_helper.get_zcrminventory_line_item(line_item))
@@ -1076,7 +1076,7 @@ module ZCRMSDK
           unless field_ins.id.nil?
             field_details['id']=field_ins.id
           end
-          
+
           unless field_ins.api_name.nil?
             field_details['api_name']=field_ins.api_name
           end
@@ -1522,7 +1522,7 @@ module ZCRMSDK
       def self.get_instance
         OrganizationAPIHandler.new
       end
-      
+
       def get_organization_details
         handler_ins = APIHandler.get_instance
         handler_ins.request_url_path = 'org'
@@ -1697,8 +1697,8 @@ module ZCRMSDK
       def get_users(user_type = nil,page=1,per_page=200)
         handler_ins = APIHandler.get_instance
         handler_ins.add_param('type', user_type) unless user_type.nil?
-        handler_ins.add_param('page', page) 
-        handler_ins.add_param('per_page', per_page) 
+        handler_ins.add_param('page', page)
+        handler_ins.add_param('per_page', per_page)
         handler_ins.request_url_path = 'users'
         handler_ins.request_method = Utility::APIConstants::REQUEST_METHOD_GET
         handler_ins.request_api_key = Utility::APIConstants::USERS
@@ -1714,7 +1714,7 @@ module ZCRMSDK
       end
 
       def search_users_by_criteria(criteria, type,page,per_page)
-        if criteria.nil? 
+        if criteria.nil?
           raise Utility::ZCRMException.get_instance('search_users_by_criteria', Utility::APIConstants::RESPONSECODE_BAD_REQUEST, 'criteria must be provided', 'NO CRITERIA PROVIDED')
         end
 
@@ -1724,7 +1724,7 @@ module ZCRMSDK
         handler_ins.request_api_key = Utility::APIConstants::USERS
         handler_ins.add_param('criteria', criteria)
         handler_ins.add_param('type', type) unless type.nil?
-        handler_ins.add_param('page', page) 
+        handler_ins.add_param('page', page)
         handler_ins.add_param('per_page', per_page)
         bulk_api_response = ZCRMSDK::Request::APIRequest.get_instance(handler_ins).get_bulk_api_response
         users_json = bulk_api_response.response_json[Utility::APIConstants::USERS]
