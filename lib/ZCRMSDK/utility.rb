@@ -6,7 +6,6 @@ require_relative 'restclient'
 require 'uri'
 require 'json'
 require 'logger'
-require 'net/http'
 require 'cgi'
 module ZCRMSDK
   module Utility
@@ -225,21 +224,21 @@ module ZCRMSDK
           @url += '?' + query_string
         end
         url = URI(@url)
-        http = Net::HTTP.new(url.host, url.port)
+        http = HTTPClient.new(url.host, url.port)
         http.use_ssl = true
         if @req_method == APIConstants::REQUEST_METHOD_GET
-          req = Net::HTTP::Get.new(url.request_uri)
+          req = HTTPClient::Get.new(url.request_uri)
         elsif @req_method == APIConstants::REQUEST_METHOD_POST
-          req = Net::HTTP::Post.new(url.request_uri)
+          req = HTTPClient::Post.new(url.request_uri)
           req.body = @req_body.to_s
         elsif @req_method == APIConstants::REQUEST_METHOD_PUT
-          req = Net::HTTP::Put.new(url.request_uri)
+          req = HTTPClient::Put.new(url.request_uri)
           req.body = @req_body.to_s
         elsif @req_method == APIConstants::REQUEST_METHOD_PATCH
-          req = Net::HTTP::Patch.new(url.request_uri)
+          req = HTTPClient::Patch.new(url.request_uri)
           req.body = @req_body.to_s
         elsif @req_method == APIConstants::REQUEST_METHOD_DELETE
-          req = Net::HTTP::Delete.new(url.request_uri)
+          req = HTTPClient::Delete.new(url.request_uri)
         end
         @req_headers.each { |key, value| req.add_field(key, value) }
         unless @req_form_data.nil?

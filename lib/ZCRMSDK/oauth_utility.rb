@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'logger'
-require 'net/http'
 require_relative 'utility'
 module ZCRMSDK
   module OAuthUtility
@@ -101,12 +100,12 @@ module ZCRMSDK
           @url += '?' + query_string
         end
         url = URI(@url)
-        http = Net::HTTP.new(url.host, url.port)
+        http = HTTPClient.new(url.host, url.port)
         http.use_ssl = true
         if @req_method == OAuthUtility::ZohoOAuthConstants::REQUEST_METHOD_GET
-          req = Net::HTTP::Get.new(url.request_uri)
+          req = HTTPClient::Get.new(url.request_uri)
         elsif @req_method == OAuthUtility::ZohoOAuthConstants::REQUEST_METHOD_POST
-          req = Net::HTTP::Post.new(url.request_uri)
+          req = HTTPClient::Post.new(url.request_uri)
         end
         unless @req_headers.nil?
           @req_headers.each do |key, value|
