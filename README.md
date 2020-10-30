@@ -38,16 +38,8 @@ In order to add a proxy to the HTTP request we can extend `Net::HTTP` through th
 
 ```ruby
 class ZCRMSDK::HTTPClient < Net::HTTP
-  def initialize(host, port)
-    if proxy_host.present?
-      super(host, port, proxy_host, proxy_port, proxy_username, proxy_password)
-    end
-  end
-
-  private
-
-  def proxy_host
-    ....
+  def self.new(host, port)
+    super(host, port, proxy_host, proxy_port, proxy_username, proxy_password)
   end
 end
 ```
