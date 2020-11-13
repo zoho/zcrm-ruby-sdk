@@ -1,6 +1,9 @@
 require 'net/http'
 
 module ZCRMSDK
-  class HTTPClient < Net::HTTP
+  class HTTPClient
+    def self.new(*args)
+      Net::HTTP.new(*args)
+    end
   end
 end

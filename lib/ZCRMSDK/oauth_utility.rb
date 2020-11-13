@@ -103,9 +103,9 @@ module ZCRMSDK
         http = HTTPClient.new(url.host, url.port)
         http.use_ssl = true
         if @req_method == OAuthUtility::ZohoOAuthConstants::REQUEST_METHOD_GET
-          req = HTTPClient::Get.new(url.request_uri)
+          req = Net::HTTP::Get.new(url.request_uri)
         elsif @req_method == OAuthUtility::ZohoOAuthConstants::REQUEST_METHOD_POST
-          req = HTTPClient::Post.new(url.request_uri)
+          req = Net::HTTP::Post.new(url.request_uri)
         end
         unless @req_headers.nil?
           @req_headers.each do |key, value|

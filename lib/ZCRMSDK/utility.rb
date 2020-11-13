@@ -227,18 +227,18 @@ module ZCRMSDK
         http = HTTPClient.new(url.host, url.port)
         http.use_ssl = true
         if @req_method == APIConstants::REQUEST_METHOD_GET
-          req = HTTPClient::Get.new(url.request_uri)
+          req = Net::HTTP::Get.new(url.request_uri)
         elsif @req_method == APIConstants::REQUEST_METHOD_POST
-          req = HTTPClient::Post.new(url.request_uri)
+          req = Net::HTTP::Post.new(url.request_uri)
           req.body = @req_body.to_s
         elsif @req_method == APIConstants::REQUEST_METHOD_PUT
-          req = HTTPClient::Put.new(url.request_uri)
+          req = Net::HTTP::Put.new(url.request_uri)
           req.body = @req_body.to_s
         elsif @req_method == APIConstants::REQUEST_METHOD_PATCH
-          req = HTTPClient::Patch.new(url.request_uri)
+          req = Net::HTTP::Patch.new(url.request_uri)
           req.body = @req_body.to_s
         elsif @req_method == APIConstants::REQUEST_METHOD_DELETE
-          req = HTTPClient::Delete.new(url.request_uri)
+          req = Net::HTTP::Delete.new(url.request_uri)
         end
         @req_headers.each { |key, value| req.add_field(key, value) }
         unless @req_form_data.nil?
