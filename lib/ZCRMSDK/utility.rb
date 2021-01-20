@@ -6,7 +6,6 @@ require_relative 'restclient'
 require 'uri'
 require 'json'
 require 'logger'
-require 'net/http'
 require 'cgi'
 module ZCRMSDK
   module Utility
@@ -225,7 +224,7 @@ module ZCRMSDK
           @url += '?' + query_string
         end
         url = URI(@url)
-        http = Net::HTTP.new(url.host, url.port)
+        http = HTTPClient.new(url.host, url.port)
         http.use_ssl = true
         if @req_method == APIConstants::REQUEST_METHOD_GET
           req = Net::HTTP::Get.new(url.request_uri)

@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'ZCRMSDK/http_client'
 require 'ZCRMSDK/oauth_utility'
 require 'ZCRMSDK/operations'
 require 'ZCRMSDK/handler'
